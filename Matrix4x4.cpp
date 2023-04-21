@@ -1,6 +1,7 @@
 #include <Matrix4x4.h>
 #include <Novice.h>
 #include <Vector3.h>
+#include <cmath>
 
 //行列の加法
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
@@ -209,23 +210,6 @@ Matrix4x4 MakeIdentity4x4() {
 
 }
 
-void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
-
-	const int kRowHeight = 20;
-	const int kColumnWidth = 60;
-
-
-	Novice::ScreenPrintf(x, y, "%s", label);
-
-	for (int row = 0; row < 4; ++row) {
-		for (int column = 0; column < 4; ++column) {
-			Novice::ScreenPrintf(
-				x + column * kColumnWidth, y + row * kRowHeight + kRowHeight, "%6.02f", matrix.m[row][column]);
-		}
-	}
-
-}
-
 //平行移動行列
 Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
 
@@ -275,5 +259,98 @@ Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 	m.m[2][2] = scale.z;
 
 	return m;
+
+}
+
+//X軸回転行列
+Matrix4x4 MakeRotateXMatrix(float radian) {
+
+	Matrix4x4 m{};
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			if (y == x) {
+				m.m[y][x] = 1.0f;
+			}
+			else {
+				m.m[y][x] = 0.0f;
+			}
+		}
+	}
+
+	m.m[1][1] = std::cos(radian);
+	m.m[1][2] = std::sin(radian);
+	m.m[2][1] = -std::sin(radian);
+	m.m[2][2] = std::cos(radian);
+
+	return m;
+
+}
+
+//Y軸回転行列
+Matrix4x4 MakeRotateYMatrix(float radian) {
+	
+	Matrix4x4 m{};
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			if (y == x) {
+				m.m[y][x] = 1.0f;
+			}
+			else {
+				m.m[y][x] = 0.0f;
+			}
+		}
+	}
+
+	m.m[0][0] = std::cos(radian);
+	m.m[0][2] = -std::sin(radian);
+	m.m[2][0] = std::sin(radian);
+	m.m[2][2] = std::cos(radian);
+
+	return m;
+
+}
+
+//Z軸回転行列
+Matrix4x4 MakeRotateZMatrix(float radian) {
+
+	Matrix4x4 m{};
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			if (y == x) {
+				m.m[y][x] = 1.0f;
+			}
+			else {
+				m.m[y][x] = 0.0f;
+			}
+		}
+	}
+
+	m.m[0][0] = std::cos(radian);
+	m.m[0][1] = std::sin(radian);
+	m.m[1][0] = -std::sin(radian);
+	m.m[1][1] = std::cos(radian);
+
+	return m;
+
+}
+
+//行列の値を表示
+void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
+
+	const int kRowHeight = 20;
+	const int kColumnWidth = 60;
+
+
+	Novice::ScreenPrintf(x, y, "%s", label);
+
+	for (int row = 0; row < 4; ++row) {
+		for (int column = 0; column < 4; ++column) {
+			Novice::ScreenPrintf(
+				x + column * kColumnWidth, y + row * kRowHeight + kRowHeight, "%6.02f", matrix.m[row][column]);
+		}
+	}
 
 }
