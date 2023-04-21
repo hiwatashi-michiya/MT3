@@ -1,5 +1,6 @@
 #include <Vector3.h>
 #include <math.h>
+#include <Novice.h>
 
 // 加算
 Vector3 Add(const Vector3& v1, const Vector3& v2) {
@@ -76,4 +77,14 @@ Vector3 Normalize(const Vector3& v) {
 	}
 
 	return newV;
+}
+
+void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) {
+
+	const int kColumnWidth = 60;
+
+	Novice::ScreenPrintf(x, y, "%0.2f", vector.x);
+	Novice::ScreenPrintf(x + kColumnWidth, y, "%0.2f", vector.y);
+	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%0.2f", vector.z);
+	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%s", label);
 }
