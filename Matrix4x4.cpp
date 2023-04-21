@@ -1,5 +1,6 @@
 #include <Matrix4x4.h>
 #include <Novice.h>
+#include <Vector3.h>
 
 //行列の加法
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
@@ -225,3 +226,54 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 
 }
 
+//平行移動行列
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
+
+	Matrix4x4 m = {};
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+
+			if (y == x) {
+				m.m[y][x] = 1.0f;
+			}
+			else {
+				m.m[y][x] = 0.0f;
+			}
+
+		}
+	}
+
+	m.m[3][0] = translate.x;
+	m.m[3][1] = translate.y;
+	m.m[3][2] = translate.z;
+
+	return m;
+
+}
+
+//拡大縮小行列
+Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
+
+	Matrix4x4 m = {};
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+
+			if (y == x) {
+				m.m[y][x] = 1.0f;
+			}
+			else {
+				m.m[y][x] = 0.0f;
+			}
+
+		}
+	}
+
+	m.m[0][0] = scale.x;
+	m.m[1][1] = scale.y;
+	m.m[2][2] = scale.z;
+
+	return m;
+
+}
