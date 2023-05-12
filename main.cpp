@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 v2{ 2.8f,0.4f,-1.3f };
 	Vector3 cross = Cross(v1, v2);
 	
-	Vector3 rotate{};
+	Vector3 rotate{ 0.0f, 0.0f, 0.0f };
 	Vector3 translate{0.0f,0.0f,1.0f};
 	Vector3 cameraPosition(0.0f, 0.0f, -200.0f);
 	const Vector3 kLocalVertices[3] = {
@@ -35,6 +35,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3(0.0f,25.0f,0.0f),
 		Vector3(25.0f,-25.0f,0.0f)
 	};
+
+	Vector3 vA = Subtract(kLocalVertices[2], kLocalVertices[1]);
+	Vector3 vB = Subtract(kLocalVertices[0], kLocalVertices[2]);
+	Vector3 vC = Subtract(translate, cameraPosition);
+
+	Vector3 crossAB = {};
+
+	float dotCAB = 0.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -94,6 +102,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			screenVertices[i] = Transform(ndcVertex, viewportMatrix);
 		}
 
+		//各種ベクトル更新
+		vA = Subtract(screenVertices[1], screenVertices[2]);
+		vB = Subtract(screenVertices[2], screenVertices[0]);
+		vC = Subtract(cameraPosition, translate);
+		crossAB = Cross(vA, vB);
+		dotCAB = Dot(vC, crossAB);
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -102,10 +117,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		Novice::DrawTriangle(
-			int(screenVertices[0].x), int(screenVertices[0].y), int(screenVertices[1].x), int(screenVertices[1].y),
-			int(screenVertices[2].x), int(screenVertices[2].y), RED, kFillModeSolid
-		);
+		if (dotCAB <= 0.0f) {
+			Novice::DrawTriangle(
+				int(screenVertices[0].x), int(screenVertices[0].y), int(screenVertices[1].x), int(screenVertices[1].y),
+				int(screenVertices[2].x), int(screenVertices[2].y), RED, kFillModeSolid
+			);
+		}
+		
 		VectorScreenPrintf(0, 0, cross, "Cross");
 		
 		///
