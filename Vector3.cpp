@@ -3,6 +3,7 @@
 #include <Novice.h>
 #include <Matrix4x4.h>
 #include <cassert>
+#include <iostream>
 
 // 加算
 Vector3 Add(const Vector3& v1, const Vector3& v2) {
@@ -120,3 +121,60 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) 
 	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%0.2f", vector.z);
 	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%s", label);
 }
+
+//球面線形補間
+Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t) {
+
+	t = Clamp(t, 0, 1.0f);
+
+	float theta = acosf(Clamp(Dot(v1, v2), 0, 1.0f) / (Length(v1) * Length(v2)));
+
+	float s = (1.0f - t) * Length(v1) + t * Length(v2);
+
+	Vector3 p = Vector3(
+		s * (std::sin(1 - t) / std::sin(theta) * v1.x / Length(v1) +
+			std::sin(t) / std::sin(theta) * v2.x / Length(v2)),
+		s * (std::sin(1 - t) / std::sin(theta) * v1.y / Length(v1) +
+			std::sin(t) / std::sin(theta) * v2.y / Length(v2)),
+		s * (std::sin(1 - t) / std::sin(theta) * v1.z / Length(v1) +
+			std::sin(t) / std::sin(theta) * v2.z / Length(v2)));
+
+	return p;
+
+}
+
+float Clamp(float x, float min, float max) {
+
+	if (x > max) {
+		return max;
+	}
+
+	if (x < min) {
+		return min;
+	}
+
+	return x;
+
+}
+
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+
+	Vector3 project;
+	float lengthB = Length(v2);
+
+	project = Multiply(Dot(v1, v2) / (lengthB * lengthB), v2);
+
+	return project;
+
+}
+
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
+
+	Vector3 cp;
+
+	cp = Add(segment.origin, Project(Subtract(point, segment.origin), segment.diff));
+
+	return cp;
+
+}
+
