@@ -1,4 +1,5 @@
 #include "Draw.h"
+#include <math.h>
 
 bool IsCollisionSphere(const Sphere& s1, const Sphere& s2) {
 
@@ -9,6 +10,19 @@ bool IsCollisionSphere(const Sphere& s1, const Sphere& s2) {
 		return true;
 	}
 	
+	return false;
+
+}
+
+bool IsCollision(const Sphere& sphere, const Plane& plane) {
+
+	//平面と球の中心点の距離を求める
+	float distance = fabsf(Dot(plane.normal, sphere.center) - plane.distance);
+
+	if (distance <= sphere.radius) {
+		return true;
+	}
+
 	return false;
 
 }

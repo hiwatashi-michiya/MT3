@@ -90,3 +90,32 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 	}
 
 }
+
+void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	//中心点を決める
+	Vector3 center = Multiply(plane.distance, plane.normal);
+	//描画に使う四つのベクトルを定義
+	Vector3 perpendiculars[4];
+	//法線と垂直なベクトルを一つ求める
+	perpendiculars[0] = Normalize(Perpendicular(plane.normal));
+	//上で求めた垂直ベクトルの逆ベクトルを求める
+	perpendiculars[1] = { -perpendiculars[0].x, -perpendiculars[0].y, -perpendiculars[0].z };
+	//垂直ベクトルと法線のクロス積を求める
+	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);
+	//上で求めたクロス積の逆ベクトルを求める
+	perpendiculars[3] = { -perpendiculars[2].x, -perpendiculars[2].y, -perpendiculars[2].z };
+	//上記の四つのベクトルを中心点にそれぞれ定数倍して足すと四頂点が出来上がる
+	Vector3 points[4];
+	for (int32_t index = 0; index < 4; ++index) {
+		Vector3 extend = Multiply(2.0f, perpendiculars[index]);
+		Vector3 point = Add(center, extend);
+		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
+	}
+
+	//pointsを結んで描画
+	Novice::DrawLine(int(points[0].x), int(points[0].y), int(points[3].x), int(points[3].y), color);
+	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[3].x), int(points[3].y), color);
+	Novice::DrawLine(int(points[2].x), int(points[2].y), int(points[1].x), int(points[1].y), color);
+	Novice::DrawLine(int(points[2].x), int(points[2].y), int(points[0].x), int(points[0].y), color);
+
+}
