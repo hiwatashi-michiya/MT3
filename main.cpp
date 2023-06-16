@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
 	Segment segment{ {0.0f,0.0f,0.0f}, {0.0f,0.0f,1.0f} };
-	Plane plane{ {0.0f,1.0f,0.0f},1.0f };
+	Triangle triangle{ {{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f}} };
 	int color = WHITE;
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(
 			0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		if (IsCollision(segment, plane)) {
+		if (IsCollision(segment, triangle)) {
 			color = 0xFF0000FF;
 		}
 		else {
@@ -74,18 +74,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("Plane Normal", &plane.normal.x, 0.01f);
-		ImGui::DragFloat("Plane Distance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("Triangle 0", &triangle.vertices[0].x, 0.01f);
+		ImGui::DragFloat3("Triangle 1", &triangle.vertices[1].x, 0.01f);
+		ImGui::DragFloat3("Triangle 2", &triangle.vertices[2].x, 0.01f);
 		ImGui::DragFloat3("Segment origin", &segment.origin.x, 0.01f);
 		ImGui::DragFloat3("Segment diff", &segment.diff.x, 0.01f);
 		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
 		ImGui::End();
 
-		plane.normal = Normalize(plane.normal);
 
 		DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 		DrawTransformLine(segment.origin, segment.diff, worldViewProjectionMatrix, viewportMatrix, color);
-		DrawPlane(plane, worldViewProjectionMatrix, viewportMatrix, 0xFFFFFFFF);
+		DrawTriangle(triangle, worldViewProjectionMatrix, viewportMatrix, 0xFFFFFFFF);
 
 		///
 		/// ↑描画処理ここまで

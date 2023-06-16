@@ -129,3 +129,18 @@ void DrawTransformLine(const Vector3& p1, const Vector3& p2, const Matrix4x4& vi
 	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), color);
 
 }
+
+void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	Vector3 point[3]{};
+
+	for (int i = 0; i < 3; i++) {
+		point[i] = Transform(Transform(triangle.vertices[i], viewProjectionMatrix), viewportMatrix);
+	}
+
+	Novice::DrawTriangle(int(point[0].x), int(point[0].y),
+		int(point[1].x), int(point[1].y),
+		int(point[2].x), int(point[2].y),
+		color, kFillModeWireFrame);
+
+}

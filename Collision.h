@@ -12,3 +12,6 @@ bool IsCollision(const Sphere& sphere, const Plane& plane);
 
 //線分と平面の当たり判定
 bool IsCollision(const Segment& segment, const Plane& plane);
+
+//線分と三角形の当たり判定
+bool IsCollision(const Segment& segment, const Triangle& triangle);
