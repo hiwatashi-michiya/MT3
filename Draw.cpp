@@ -119,3 +119,13 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 	Novice::DrawLine(int(points[2].x), int(points[2].y), int(points[0].x), int(points[0].y), color);
 
 }
+
+void DrawTransformLine(const Vector3& p1, const Vector3& p2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	Vector3 start = Transform(Transform(p1, viewProjectionMatrix), viewportMatrix);
+
+	Vector3 end = Transform(Transform(Add(p1, p2), viewProjectionMatrix), viewportMatrix);
+
+	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), color);
+
+}
