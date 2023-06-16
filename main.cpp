@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
 	Segment segment{ {0.0f,0.0f,0.0f}, {0.0f,0.0f,1.0f} };
-	Triangle triangle{ {{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f}} };
+	Triangle triangle{ {{-1.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f}} };
 	int color = WHITE;
 
 	// ウィンドウの×ボタンが押されるまでループ
