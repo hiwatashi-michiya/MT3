@@ -4,6 +4,7 @@
 #include <Matrix4x4.h>
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 // 加算
 Vector3 Add(const Vector3& v1, const Vector3& v2) {
@@ -185,5 +186,16 @@ Vector3 Perpendicular(const Vector3& vector) {
 	}
 
 	return { 0.0f,-vector.z, vector.y };
+
+}
+
+void ClampAABB(AABB& aabb) {
+
+	aabb.min.x = (std::min)(aabb.min.x, aabb.max.x);
+	aabb.max.x = (std::max)(aabb.min.x, aabb.max.x);
+	aabb.min.y = (std::min)(aabb.min.y, aabb.max.y);
+	aabb.max.y = (std::max)(aabb.min.y, aabb.max.y);
+	aabb.min.z = (std::min)(aabb.min.z, aabb.max.z);
+	aabb.max.z = (std::max)(aabb.min.z, aabb.max.z);
 
 }

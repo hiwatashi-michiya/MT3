@@ -144,3 +144,62 @@ void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatri
 		color, kFillModeWireFrame);
 
 }
+
+void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	Vector3 point[8]{};
+
+	//それぞれの位置を計算
+
+	//左下前
+	point[0] = { aabb.min.x,aabb.min.y, aabb.min.z };
+	//右下前
+	point[1] = { aabb.max.x,aabb.min.y, aabb.min.z };
+	//左上前
+	point[2] = { aabb.min.x,aabb.max.y, aabb.min.z };
+	//右上前
+	point[3] = { aabb.max.x,aabb.max.y, aabb.min.z };
+	//左下奥
+	point[4] = { aabb.min.x,aabb.min.y, aabb.max.z };
+	//右下奥
+	point[5] = { aabb.max.x,aabb.min.y, aabb.max.z };
+	//左上奥
+	point[6] = { aabb.min.x,aabb.max.y, aabb.max.z };
+	//右上奥
+	point[7] = { aabb.max.x,aabb.max.y, aabb.max.z };
+
+	//左下前
+	point[0] = Transform(Transform(point[0], viewProjectionMatrix), viewportMatrix);
+	//右下前
+	point[1] = Transform(Transform(point[1], viewProjectionMatrix), viewportMatrix);
+	//左上前
+	point[2] = Transform(Transform(point[2], viewProjectionMatrix), viewportMatrix);
+	//右上前
+	point[3] = Transform(Transform(point[3], viewProjectionMatrix), viewportMatrix);
+	//左下奥
+	point[4] = Transform(Transform(point[4], viewProjectionMatrix), viewportMatrix);
+	//右下奥
+	point[5] = Transform(Transform(point[5], viewProjectionMatrix), viewportMatrix);
+	//左上奥
+	point[6] = Transform(Transform(point[6], viewProjectionMatrix), viewportMatrix);
+	//右上奥
+	point[7] = Transform(Transform(point[7], viewProjectionMatrix), viewportMatrix);
+
+	//八頂点を使って描画
+	Novice::DrawLine(int(point[0].x), int(point[0].y), int(point[1].x), int(point[1].y), color);
+	Novice::DrawLine(int(point[0].x), int(point[0].y), int(point[2].x), int(point[2].y), color);
+	Novice::DrawLine(int(point[1].x), int(point[1].y), int(point[3].x), int(point[3].y), color);
+	Novice::DrawLine(int(point[2].x), int(point[2].y), int(point[3].x), int(point[3].y), color);
+
+	Novice::DrawLine(int(point[0].x), int(point[0].y), int(point[4].x), int(point[4].y), color);
+	Novice::DrawLine(int(point[1].x), int(point[1].y), int(point[5].x), int(point[5].y), color);
+	Novice::DrawLine(int(point[2].x), int(point[2].y), int(point[6].x), int(point[6].y), color);
+	Novice::DrawLine(int(point[3].x), int(point[3].y), int(point[7].x), int(point[7].y), color);
+
+	Novice::DrawLine(int(point[4].x), int(point[4].y), int(point[5].x), int(point[5].y), color);
+	Novice::DrawLine(int(point[4].x), int(point[4].y), int(point[6].x), int(point[6].y), color);
+	Novice::DrawLine(int(point[5].x), int(point[5].y), int(point[7].x), int(point[7].y), color);
+	Novice::DrawLine(int(point[6].x), int(point[6].y), int(point[7].x), int(point[7].y), color);
+
+
+}

@@ -31,8 +31,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Segment segment{ {0.0f,0.0f,0.0f}, {0.0f,0.0f,1.0f} };
-	Triangle triangle{ {{-1.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f}} };
+	AABB aabb1{
+		.min{-0.5f,-0.5f,-0.5f},
+		.max{0.0f,0.0f,0.0f},
+	};
+
+	AABB aabb2{
+		.min{0.2f,0.2f,0.2f},
+		.max{1.0f,1.0f,1.0f},
+	};
+
 	int color = WHITE;
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -54,11 +62,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(
 			0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		Matrix4x4 viewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(
 			0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		if (IsCollision(segment, triangle)) {
+		if (IsCollision(aabb1, aabb2)) {
 			color = 0xFF0000FF;
 		}
 		else {
@@ -74,18 +82,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("Triangle 0", &triangle.vertices[0].x, 0.01f);
-		ImGui::DragFloat3("Triangle 1", &triangle.vertices[1].x, 0.01f);
-		ImGui::DragFloat3("Triangle 2", &triangle.vertices[2].x, 0.01f);
-		ImGui::DragFloat3("Segment origin", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("Segment diff", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("aabb1 min", &aabb1.min.x, 0.01f);
+		ImGui::DragFloat3("aabb1 max", &aabb1.max.x, 0.01f);
+		ImGui::DragFloat3("aabb2 min", &aabb2.min.x, 0.01f);
+		ImGui::DragFloat3("aabb2 max", &aabb2.max.x, 0.01f);
 		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
 		ImGui::End();
 
+		ClampAABB(aabb1);
+		ClampAABB(aabb2);
 
-		DrawGrid(worldViewProjectionMatrix, viewportMatrix);
-		DrawTransformLine(segment.origin, segment.diff, worldViewProjectionMatrix, viewportMatrix, color);
-		DrawTriangle(triangle, worldViewProjectionMatrix, viewportMatrix, 0xFFFFFFFF);
+
+		DrawGrid(viewProjectionMatrix, viewportMatrix);
+		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
+		DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
