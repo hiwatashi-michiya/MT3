@@ -21,3 +21,6 @@ bool IsCollision(const AABB& aabb1, const AABB& aabb2);
 
 //球とAABBの当たり判定
 bool IsCollision(const AABB& aabb, const Sphere& sphere);
+
+//AABBと線分の当たり判定
+bool IsCollision(const AABB& aabb, const Segment& segment);

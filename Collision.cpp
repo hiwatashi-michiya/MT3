@@ -1,6 +1,7 @@
 #include "Draw.h"
 #include <math.h>
 #include <algorithm>
+#include <cassert>
 
 bool IsCollisionSphere(const Sphere& s1, const Sphere& s2) {
 
@@ -134,6 +135,43 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere) {
 		return true;
 	}
 
+
+	return false;
+
+}
+
+bool IsCollision(const AABB& aabb, const Segment& segment) {
+
+
+	//それぞれの媒介変数を求める
+	float tMinX = (aabb.min.x - segment.origin.x) / segment.diff.x;
+	float tMaxX = (aabb.max.x - segment.origin.x) / segment.diff.x;
+	float tMinY = (aabb.min.y - segment.origin.y) / segment.diff.y;
+	float tMaxY = (aabb.max.y - segment.origin.y) / segment.diff.y;
+	float tMinZ = (aabb.min.z - segment.origin.z) / segment.diff.z;
+	float tMaxZ = (aabb.max.z - segment.origin.z) / segment.diff.z;
+
+	//衝突点の近い方と遠い方を求める
+	float tNearX = min(tMinX, tMaxX);
+	float tFarX = max(tMinX, tMaxX);
+	float tNearY = min(tMinY, tMaxY);
+	float tFarY = max(tMinY, tMaxY);
+	float tNearZ = min(tMinZ, tMaxZ);
+	float tFarZ = max(tMinZ, tMaxZ);
+
+	//AABBとの衝突点(貫通点)のtが小さい方
+	float tMin = max(max(tNearX, tNearY), tNearZ);
+	//AABBとの衝突点(貫通点)のtが大きい方
+	float tMax = min(min(tFarX, tFarY), tFarZ);
+
+	//衝突しているかどうか判定
+	if (tMin <= tMax && 
+		((tMin >= 0.0f && tMin <= 1.0f) ||
+		(tMax >= 0.0f && tMax <= 1.0f))) {
+
+
+		return true;
+	}
 
 	return false;
 

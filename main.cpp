@@ -33,12 +33,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	AABB aabb1{
 		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.0f,0.0f,0.0f},
+		.max{0.5f,0.5f,0.5f},
 	};
 
-	Sphere sphere{
-		.center{1.0f,1.0f,1.0f},
-		.radius{1.0f}
+	Segment segment{
+		.origin{-0.7f,0.3f,0.0f},
+		.diff{2.0f,-0.5f,0.0f}
 	};
 
 	int color = WHITE;
@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(
 			0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		if (IsCollision(aabb1, sphere)) {
+		if (IsCollision(aabb1, segment)) {
 			color = 0xFF0000FF;
 		}
 		else {
@@ -84,8 +84,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("aabb1 min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1 max", &aabb1.max.x, 0.01f);
-		ImGui::DragFloat3("sphere center", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("sphere radius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("segment origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("segment diff", &segment.diff.x, 0.01f);
 		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
 		ImGui::End();
 
@@ -94,7 +94,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawTransformLine(segment.origin, segment.diff, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
