@@ -201,3 +201,33 @@ bool IsCollision(const OBB& obb, const Sphere& sphere) {
 	return false;
 
 }
+
+bool IsCollision(const OBB& obb, const Segment& segment) {
+
+	//衝突判定のための変数を設定
+	Matrix4x4 obbWorldMatrix{
+		{
+		{obb.orientations[0].x,obb.orientations[0].y,obb.orientations[0].z,0,},
+		{obb.orientations[1].x,obb.orientations[1].y,obb.orientations[1].z,0,},
+		{obb.orientations[2].x,obb.orientations[2].y,obb.orientations[2].z,0,},
+		{obb.center.x, obb.center.y,obb.center.z, 1}
+		}
+	};
+
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 localOrigin = Transform(segment.origin, obbWorldMatrixInverse);
+	Vector3 localEnd = Transform(Add(segment.origin, segment.diff), obbWorldMatrixInverse);
+
+	AABB localAABB{
+		{-obb.size.x, -obb.size.y, -obb.size.z},
+		{obb.size.x, obb.size.y, obb.size.z}
+	};
+
+	Segment localSegment;
+	localSegment.origin = localOrigin;
+	localSegment.diff = Subtract(localEnd, localOrigin);
+
+	return IsCollision(localAABB, localSegment);
+
+}

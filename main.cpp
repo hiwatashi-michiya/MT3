@@ -40,9 +40,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{0.0f,0.0f,1.0f}},
 		.size{0.5f,0.5f,0.5f}
 	};
-	Sphere sphere{
-		.center{0.0f,0.0f,0.0f},
-		.radius{0.5f}
+
+	Segment segment{
+		.origin{-0.8f,-0.3f,0.0f},
+		.diff{0.5f,0.5f,0.5f}
 	};
 
 	int color = WHITE;
@@ -77,12 +78,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("OBB orientation Y", &obb.orientations[1].x, 0.01f);
 		ImGui::DragFloat3("OBB orientation Z", &obb.orientations[2].x, 0.01f);
 		ImGui::DragFloat3("OBB size", &obb.size.x, 0.01f, 0.1f, 100.0f);
-		ImGui::DragFloat3("Sphere center", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("Sphere radius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("Segment origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("Segment diff", &segment.diff.x, 0.01f);
 		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
 		ImGui::End();
 
-		if (IsCollision(obb, sphere)) {
+		if (IsCollision(obb, segment)) {
 			color = 0xFF0000FF;
 		}
 		else {
@@ -120,7 +121,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawOBB(obb, viewProjectionMatrix, viewportMatrix, color);
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawTransformLine(segment.origin, segment.diff, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
