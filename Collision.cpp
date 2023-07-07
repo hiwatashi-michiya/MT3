@@ -168,11 +168,36 @@ bool IsCollision(const AABB& aabb, const Segment& segment) {
 	if (tMin <= tMax && 
 		((tMin >= 0.0f && tMin <= 1.0f) ||
 		(tMax >= 0.0f && tMax <= 1.0f))) {
-
-
 		return true;
 	}
 
+	return false;
+
+}
+
+bool IsCollision(const OBB& obb, const Sphere& sphere) {
+
+	//衝突判定のための変数を設定
+	Matrix4x4 obbWorldMatrix{
+		{
+		{obb.orientations[0].x,obb.orientations[0].y,obb.orientations[0].z,0,},
+		{obb.orientations[1].x,obb.orientations[1].y,obb.orientations[1].z,0,},
+		{obb.orientations[2].x,obb.orientations[2].y,obb.orientations[2].z,0,},
+		{obb.center.x, obb.center.y,obb.center.z, 1}
+		}
+	};
+
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 centerInOBBLocalSpace = Transform(sphere.center, obbWorldMatrixInverse);
+
+	AABB aabbOBBLocal{ Vector3(-obb.size.x, -obb.size.y, -obb.size.z), obb.size };
+	Sphere sphereOBBLocal{ centerInOBBLocalSpace, sphere.radius };
+	//ローカル空間で衝突判定
+	if (IsCollision(aabbOBBLocal, sphereOBBLocal)) {
+		return true;
+	}
+	
 	return false;
 
 }
