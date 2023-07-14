@@ -31,3 +31,6 @@ void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix
 
 void DrawBezier(const Vector3& p0, const Vector3& p1, const Vector3& p2,
 	const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+void DrawCatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p2,
+	const Vector3& p3, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);

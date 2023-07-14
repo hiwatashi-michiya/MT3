@@ -310,3 +310,25 @@ void DrawBezier(const Vector3& p0, const Vector3& p1, const Vector3& p2,
 	}
 
 }
+
+void DrawCatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p2,
+	const Vector3& p3, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	const int kMaxDivide = 32;
+
+	for (int i = 0; i < kMaxDivide; i++) {
+
+		float t0 = float(i) / float(kMaxDivide);
+		float t1 = float(i + 1) / float(kMaxDivide);
+
+		Vector3 catmullRom0 = CatmullRomPoint(p0, p1, p2, p3, t0);
+		Vector3 catmullRom1 = CatmullRomPoint(p0, p1, p2, p3, t1);
+
+		catmullRom0 = Transform(Transform(catmullRom0, viewProjectionMatrix), viewportMatrix);
+		catmullRom1 = Transform(Transform(catmullRom1, viewProjectionMatrix), viewportMatrix);
+
+		Novice::DrawLine(int(catmullRom0.x), int(catmullRom0.y), int(catmullRom1.x), int(catmullRom1.y), color);
+
+	}
+
+}

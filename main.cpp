@@ -31,10 +31,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Sphere controlPoints[3]{
+	Sphere controlPoints[4]{
 		{.center{-0.8f,0.58f,1.0f}, .radius{0.01f}},
 		{.center{1.76f,1.0f,-0.3f}, .radius{0.01f}},
-		{.center{0.94f,-0.7f,2.3f}, .radius{0.01f}}
+		{.center{0.94f,-0.7f,2.3f}, .radius{0.01f}},
+		{.center{-0.53f,-0.26f,-0.15f}, .radius{0.01f}}
 	};
 
 	int color = BLACK;
@@ -66,6 +67,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("controlPoint[0]", &controlPoints[0].center.x, 0.01f);
 		ImGui::DragFloat3("controlPoint[1]", &controlPoints[1].center.x, 0.01f);
 		ImGui::DragFloat3("controlPoint[2]", &controlPoints[2].center.x, 0.01f);
+		ImGui::DragFloat3("controlPoint[3]", &controlPoints[3].center.x, 0.01f);
 		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
 		ImGui::End();
 
@@ -79,11 +81,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 4; i++) {
 			DrawSphere(controlPoints[i], viewProjectionMatrix, viewportMatrix, color);
 		}
-		DrawBezier(controlPoints[0].center, controlPoints[1].center, controlPoints[2].center,
-			viewProjectionMatrix, viewportMatrix, BLUE);
+		DrawCatmullRom(controlPoints[0].center, controlPoints[0].center, controlPoints[1].center,
+			controlPoints[2].center, viewProjectionMatrix, viewportMatrix, BLUE);
+		DrawCatmullRom(controlPoints[0].center, controlPoints[1].center, controlPoints[2].center,
+			controlPoints[3].center, viewProjectionMatrix, viewportMatrix, BLUE);
+		DrawCatmullRom(controlPoints[1].center, controlPoints[2].center, controlPoints[3].center,
+			controlPoints[3].center, viewProjectionMatrix, viewportMatrix, BLUE);
 
 		///
 		/// ↑描画処理ここまで
