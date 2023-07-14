@@ -288,3 +288,25 @@ void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix
 
 	
 }
+
+void DrawBezier(const Vector3& p0, const Vector3& p1, const Vector3& p2,
+	const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	const int kMaxDivide = 32;
+
+	for (int i = 0; i < kMaxDivide; i++) {
+
+		float t0 = float(i) / float(kMaxDivide);
+		float t1 = float(i + 1) / float(kMaxDivide);
+
+		Vector3 bezier0 = Lerp(Lerp(p0, p1, t0), Lerp(p1, p2, t0), t0);
+		Vector3 bezier1 = Lerp(Lerp(p0, p1, t1), Lerp(p1, p2, t1), t1);
+
+		bezier0 = Transform(Transform(bezier0, viewProjectionMatrix), viewportMatrix);
+		bezier1 = Transform(Transform(bezier1, viewProjectionMatrix), viewportMatrix);
+
+		Novice::DrawLine(int(bezier0.x), int(bezier0.y), int(bezier1.x), int(bezier1.y), color);
+
+	}
+
+}

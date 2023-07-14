@@ -123,6 +123,21 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) 
 	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%s", label);
 }
 
+//線形補間
+Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
+
+	t = Clamp(t, 0, 1.0f);
+
+	Vector3 p = Vector3(
+		v1.x + t * (v2.x - v1.x),
+		v1.y + t * (v2.y - v1.y),
+		v1.z + t * (v2.z - v1.z)
+	);
+
+	return p;
+
+}
+
 //球面線形補間
 Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t) {
 
@@ -197,5 +212,31 @@ void ClampAABB(AABB& aabb) {
 	aabb.max.y = (std::max)(aabb.min.y, aabb.max.y);
 	aabb.min.z = (std::min)(aabb.min.z, aabb.max.z);
 	aabb.max.z = (std::max)(aabb.min.z, aabb.max.z);
+
+}
+
+//OBB回転
+void RotateOBB(OBB& obb, const Vector3& rotate) {
+
+	//回転行列を生成
+	Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x),
+		Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
+
+	//回転行列から軸を抽出
+	obb.orientations[0].x = rotateMatrix.m[0][0];
+	obb.orientations[0].y = rotateMatrix.m[0][1];
+	obb.orientations[0].z = rotateMatrix.m[0][2];
+
+	obb.orientations[1].x = rotateMatrix.m[1][0];
+	obb.orientations[1].y = rotateMatrix.m[1][1];
+	obb.orientations[1].z = rotateMatrix.m[1][2];
+
+	obb.orientations[2].x = rotateMatrix.m[2][0];
+	obb.orientations[2].y = rotateMatrix.m[2][1];
+	obb.orientations[2].z = rotateMatrix.m[2][2];
+
+	obb.orientations[0] = Normalize(obb.orientations[0]);
+	obb.orientations[1] = Normalize(obb.orientations[1]);
+	obb.orientations[2] = Normalize(obb.orientations[2]);
 
 }
