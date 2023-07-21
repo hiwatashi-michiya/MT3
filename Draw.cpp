@@ -130,6 +130,16 @@ void DrawTransformLine(const Vector3& p1, const Vector3& p2, const Matrix4x4& vi
 
 }
 
+void DrawChangeLine(const Vector3& p1, const Vector3& p2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	Vector3 start = Transform(Transform(p1, viewProjectionMatrix), viewportMatrix);
+
+	Vector3 end = Transform(Transform(p2, viewProjectionMatrix), viewportMatrix);
+
+	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), color);
+
+}
+
 void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 
 	Vector3 point[3]{};
