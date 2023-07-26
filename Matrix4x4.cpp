@@ -2,6 +2,7 @@
 #include <Novice.h>
 #include <Vector3.h>
 #include <cmath>
+#include <cassert>
 
 //行列の加法
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {

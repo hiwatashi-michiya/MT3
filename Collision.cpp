@@ -152,17 +152,17 @@ bool IsCollision(const AABB& aabb, const Segment& segment) {
 	float tMaxZ = (aabb.max.z - segment.origin.z) / segment.diff.z;
 
 	//衝突点の近い方と遠い方を求める
-	float tNearX = min(tMinX, tMaxX);
-	float tFarX = max(tMinX, tMaxX);
-	float tNearY = min(tMinY, tMaxY);
-	float tFarY = max(tMinY, tMaxY);
-	float tNearZ = min(tMinZ, tMaxZ);
-	float tFarZ = max(tMinZ, tMaxZ);
+	float tNearX = std::min(tMinX, tMaxX);
+	float tFarX = std::max(tMinX, tMaxX);
+	float tNearY = std::min(tMinY, tMaxY);
+	float tFarY = std::max(tMinY, tMaxY);
+	float tNearZ = std::min(tMinZ, tMaxZ);
+	float tFarZ = std::max(tMinZ, tMaxZ);
 
 	//AABBとの衝突点(貫通点)のtが小さい方
-	float tMin = max(max(tNearX, tNearY), tNearZ);
+	float tMin = std::max(std::max(tNearX, tNearY), tNearZ);
 	//AABBとの衝突点(貫通点)のtが大きい方
-	float tMax = min(min(tFarX, tFarY), tFarZ);
+	float tMax = std::min(std::min(tFarX, tFarY), tFarZ);
 
 	//衝突しているかどうか判定
 	if (tMin <= tMax && 
