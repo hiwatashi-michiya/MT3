@@ -48,13 +48,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Pendulum pendulum{};
-	pendulum.anchor = { 0.0f,1.0f,0.0f };
-	pendulum.length = 0.8f;
-	pendulum.angle = 0.7f;
-	pendulum.angularVelocity = 0.0f;
-	pendulum.angularAcceleration = 0.0f;
-	
+	ConicalPendulum conicalPendulum{};
+	conicalPendulum.anchor = { 0.0f,1.0f,0.0f };
+	conicalPendulum.length = 0.8f;
+	conicalPendulum.halfApexAngle = 0.7f;
+	conicalPendulum.angle = 0.0f;
+	conicalPendulum.angularVelocity = 0.0f;
+
 	Sphere sphereBall{};
 	sphereBall.center = { 0.0f,0.0f,0.0f };
 	sphereBall.radius = 0.05f;
@@ -101,20 +101,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			isMove = false;
 		}
 
+		ImGui::SliderFloat("length", &conicalPendulum.length, 0.1f, 2.0f);
+		ImGui::SliderFloat("halfApexAngle", &conicalPendulum.halfApexAngle, 0.0f, 3.14f / 2.0f - 0.1f);
+
 		ImGui::End();
 
 		if (isMove) {
 
-			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sinf(pendulum.angle);
-			pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
-			pendulum.angle += pendulum.angularVelocity * deltaTime;
+			conicalPendulum.angularVelocity = std::sqrtf(
+				(9.8f / conicalPendulum.length * std::cosf(conicalPendulum.halfApexAngle)));
+			conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
+
+			if (conicalPendulum.angle >= 6.28f) {
+				conicalPendulum.angle = 0.0f;
+			}
 
 		}
 
-		sphereBall.center.x = pendulum.anchor.x + std::sinf(pendulum.angle) * pendulum.length;
-		sphereBall.center.y = pendulum.anchor.y - std::cosf(pendulum.angle) * pendulum.length;
-		sphereBall.center.z = pendulum.anchor.z;
+		float radius = std::sinf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
+		float height = std::cosf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
 		
+		sphereBall.center.x = conicalPendulum.anchor.x + std::cosf(conicalPendulum.angle) * radius;
+		sphereBall.center.y = conicalPendulum.anchor.y - height;
+		sphereBall.center.z = conicalPendulum.anchor.z - std::sinf(conicalPendulum.angle) * radius;
 
 		///
 		/// ↑更新処理ここまで
@@ -125,7 +134,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawLengthLine(pendulum.anchor, sphereBall.center, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawLengthLine(conicalPendulum.anchor, sphereBall.center, viewProjectionMatrix, viewportMatrix, WHITE);
 		DrawSphere(sphereBall, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
