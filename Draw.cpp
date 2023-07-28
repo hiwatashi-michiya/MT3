@@ -67,8 +67,13 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 		v2 = Transform(ndcVertex, viewportMatrix);
 
 		//変換後の座標を使って表示
-		Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0xAAAAAAFF);
-
+		if (x != 5) {
+			Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0xAAAAAAFF);
+		}
+		else {
+			Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0x000000FF);
+		}
+		
 	}
 
 	//左右
@@ -85,7 +90,13 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 		v2 = Transform(ndcVertex, viewportMatrix);
 
 		//変換後の座標を使って表示
-		Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0xAAAAAAFF);
+		if (z != 5) {
+			Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0xAAAAAAFF);
+		}
+		else {
+			Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0x000000FF);
+		}
+		
 
 	}
 

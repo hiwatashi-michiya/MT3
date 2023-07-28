@@ -7,6 +7,7 @@
 #include "Draw.h"
 #include <imgui.h>
 #include "Collision.h"
+#include <cmath>
 
 const char kWindowTitle[] = "LE2A_15_ヒワタシミチヤ";
 
@@ -57,13 +58,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.position = { 1.2f,0.0f,0.0f };
 	ball.mass = 2.0f;
 	ball.radius = 0.05f;
-	ball.color = BLUE;
+	ball.color = WHITE;
 
 	Sphere sphereBall{};
 	sphereBall.center = ball.position;
 	sphereBall.radius = ball.radius;
 
+	Vector3 center{ 0.0f,0.0f,0.0f };
+	float r = 1.0f;
+
 	bool isMove = false;
+
+	float deltaTime = 1.0f / 60.0f;
+	float angularVelocity = 3.14f;
+	float angle = 0.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -99,8 +107,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			isMove = true;
 		}
 
-		if (ImGui::Button("Reset")) {
-			ball.position = { 1.2f,0.0f,0.0f };
+		if (ImGui::Button("Stop")) {
 			isMove = false;
 		}
 
@@ -108,28 +115,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (isMove) {
 
-			float deltaTime = 1.0f / 60.0f;
+			angle += angularVelocity * deltaTime;
 
-			Vector3 diff = ball.position - spring.anchor;
-			float length = Length(diff);
-			if (length != 0.0f) {
-				Vector3 direction = Normalize(diff);
-				Vector3 restPosition = spring.anchor + direction * spring.naturalLength;
-				Vector3 displacement = length * (ball.position - restPosition);
-				Vector3 restoringForce = -spring.stiffness * displacement;
-				//減衰抵抗を計算する
-				Vector3 dampingForce = -spring.dampingCoefficient * ball.velocity;
-				//減衰抵抗も加味して、物体にかかる力を決定する
-				Vector3 force = restoringForce + dampingForce;
-				ball.acceleration = force / ball.mass;
+			if (angle >= 6.28f) {
+				angle = 0.0f;
 			}
-
-			ball.velocity += ball.acceleration * deltaTime;
-			ball.position += ball.velocity * deltaTime;
 
 		}
 
-		sphereBall.center = ball.position;
+		sphereBall.center.x = center.x + std::cosf(angle) * r;
+		sphereBall.center.y = center.y + std::sinf(angle) * r;
+		sphereBall.center.z = center.z;
 
 		///
 		/// ↑更新処理ここまで
@@ -140,7 +136,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawLengthLine(spring.anchor, ball.position, viewProjectionMatrix, viewportMatrix, WHITE);
 		DrawSphere(sphereBall, viewProjectionMatrix, viewportMatrix, ball.color);
 
 		///
