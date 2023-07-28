@@ -48,30 +48,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Spring spring{};
-	spring.anchor = { 0.0f,0.0f,0.0f };
-	spring.naturalLength = 1.0f;
-	spring.stiffness = 100.0f;
-	spring.dampingCoefficient = 2.0f;
-
-	Ball ball{};
-	ball.position = { 1.2f,0.0f,0.0f };
-	ball.mass = 2.0f;
-	ball.radius = 0.05f;
-	ball.color = WHITE;
-
+	Pendulum pendulum{};
+	pendulum.anchor = { 0.0f,1.0f,0.0f };
+	pendulum.length = 0.8f;
+	pendulum.angle = 0.7f;
+	pendulum.angularVelocity = 0.0f;
+	pendulum.angularAcceleration = 0.0f;
+	
 	Sphere sphereBall{};
-	sphereBall.center = ball.position;
-	sphereBall.radius = ball.radius;
-
-	Vector3 center{ 0.0f,0.0f,0.0f };
-	float r = 0.8f;
+	sphereBall.center = { 0.0f,0.0f,0.0f };
+	sphereBall.radius = 0.05f;
 
 	bool isMove = false;
 
 	float deltaTime = 1.0f / 60.0f;
-	float angularVelocity = 3.14f;
-	float angle = 0.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -115,17 +105,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		if (isMove) {
 
-			angle += angularVelocity * deltaTime;
-
-			if (angle >= 6.28f) {
-				angle = 0.0f;
-			}
+			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sinf(pendulum.angle);
+			pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
+			pendulum.angle += pendulum.angularVelocity * deltaTime;
 
 		}
 
-		sphereBall.center.x = center.x + std::cosf(angle) * r;
-		sphereBall.center.y = center.y + std::sinf(angle) * r;
-		sphereBall.center.z = center.z;
+		sphereBall.center.x = pendulum.anchor.x + std::sinf(pendulum.angle) * pendulum.length;
+		sphereBall.center.y = pendulum.anchor.y - std::cosf(pendulum.angle) * pendulum.length;
+		sphereBall.center.z = pendulum.anchor.z;
+		
 
 		///
 		/// ↑更新処理ここまで
@@ -136,7 +125,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawSphere(sphereBall, viewProjectionMatrix, viewportMatrix, ball.color);
+		DrawLengthLine(pendulum.anchor, sphereBall.center, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawSphere(sphereBall, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
