@@ -65,7 +65,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sphereBall.radius = ball.radius;
 
 	Vector3 center{ 0.0f,0.0f,0.0f };
-	float r = 1.0f;
+	float r = 0.8f;
 
 	bool isMove = false;
 
