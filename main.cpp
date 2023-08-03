@@ -48,20 +48,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	ConicalPendulum conicalPendulum{};
-	conicalPendulum.anchor = { 0.0f,1.0f,0.0f };
-	conicalPendulum.length = 0.8f;
-	conicalPendulum.halfApexAngle = 0.7f;
-	conicalPendulum.angle = 0.0f;
-	conicalPendulum.angularVelocity = 0.0f;
+	Plane plane{};
+	plane.normal = Normalize({ -0.2f,0.9f,-0.3f });
+	plane.distance = 0.0f;
 
-	Sphere sphereBall{};
-	sphereBall.center = { 0.0f,0.0f,0.0f };
-	sphereBall.radius = 0.05f;
+	Ball ball{};
+	ball.position = { 0.8f,1.2f,0.3f };
+	ball.mass = 2.0f;
+	ball.radius = 0.05f;
+	ball.color = WHITE;
+	ball.acceleration = { 0.0f,-9.8f,0.0f };
 
 	bool isMove = false;
 
 	float deltaTime = 1.0f / 60.0f;
+
+	float e = 0.8f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -92,39 +94,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::End();
 
 		ImGui::Begin("Window");
-		
+
 		if (ImGui::Button("Start")) {
 			isMove = true;
 		}
 
-		if (ImGui::Button("Stop")) {
+		if (ImGui::Button("Reset")) {
+			ball.position = { 0.8f,1.2f,0.3f };
+			ball.velocity = { 0.0f,0.0f,0.0f };
+			ball.acceleration = { 0.0f,-9.8f,0.0f };
 			isMove = false;
 		}
 
-		ImGui::SliderFloat("length", &conicalPendulum.length, 0.1f, 2.0f);
-		ImGui::SliderFloat("halfApexAngle", &conicalPendulum.halfApexAngle, 0.0f, 3.14f / 2.0f - 0.1f);
-
 		ImGui::End();
 
-		if (isMove) {
+		if (isMove && ball.position.y > -50.0f) {
 
-			conicalPendulum.angularVelocity = std::sqrtf(
-				(9.8f / conicalPendulum.length * std::cosf(conicalPendulum.halfApexAngle)));
-			conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
-
-			if (conicalPendulum.angle >= 6.28f) {
-				conicalPendulum.angle = 0.0f;
+			ball.velocity += ball.acceleration * deltaTime;
+			ball.position += ball.velocity * deltaTime;
+			if (IsCollision(Sphere{ ball.position, ball.radius }, plane)) {
+				ball.velocity = Reflect(ball.velocity, plane.normal) * e;
 			}
 
 		}
-
-		float radius = std::sinf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
-		float height = std::cosf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
 		
-		sphereBall.center.x = conicalPendulum.anchor.x + std::cosf(conicalPendulum.angle) * radius;
-		sphereBall.center.y = conicalPendulum.anchor.y - height;
-		sphereBall.center.z = conicalPendulum.anchor.z - std::sinf(conicalPendulum.angle) * radius;
-
 		///
 		/// ↑更新処理ここまで
 		///
@@ -134,8 +127,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawLengthLine(conicalPendulum.anchor, sphereBall.center, viewProjectionMatrix, viewportMatrix, WHITE);
-		DrawSphere(sphereBall, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, BLACK);
+		DrawSphere(Sphere{ ball.position, ball.radius }, viewProjectionMatrix, viewportMatrix, ball.color);
 
 		///
 		/// ↑描画処理ここまで

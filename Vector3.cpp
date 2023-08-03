@@ -237,6 +237,16 @@ Vector3 Perpendicular(const Vector3& vector) {
 
 }
 
+Vector3 Reflect(const Vector3& input, const Vector3& normal) {
+
+	Vector3 r{};
+
+	r = Subtract(input, Multiply(2 * Dot(input, normal), normal));
+
+	return r;
+
+}
+
 void ClampAABB(AABB& aabb) {
 
 	aabb.min.x = (std::min)(aabb.min.x, aabb.max.x);
