@@ -31,12 +31,12 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix,
 			sphere.radius * cosf(lat) * sinf(lon + phiD) + sphere.center.z };
 
 			//スクリーン座標に変換
-			Vector3 ndcVertex = Transform(a, viewProjectionMatrix);
-			a = Transform(ndcVertex, viewportMatrix);
-			ndcVertex = Transform(b, viewProjectionMatrix);
-			b = Transform(ndcVertex, viewportMatrix);
-			ndcVertex = Transform(c, viewProjectionMatrix);
-			c = Transform(ndcVertex, viewportMatrix);
+			Vector3 ndcVertex = CoordTransform(a, viewProjectionMatrix);
+			a = CoordTransform(ndcVertex, viewportMatrix);
+			ndcVertex = CoordTransform(b, viewProjectionMatrix);
+			b = CoordTransform(ndcVertex, viewportMatrix);
+			ndcVertex = CoordTransform(c, viewProjectionMatrix);
+			c = CoordTransform(ndcVertex, viewportMatrix);
 
 			//ab,acで線を引く
 			Novice::DrawLine(int(a.x), int(a.y), int(b.x), int(b.y), color);
@@ -61,10 +61,10 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 		Vector3 v2 = { kGridEvery * x - kGridHalfWidth,0.0f,-kGridHalfWidth };
 
 		//スクリーン座標に変換
-		Vector3 ndcVertex = Transform(v1, viewProjectionMatrix);
-		v1 = Transform(ndcVertex, viewportMatrix);
-		ndcVertex = Transform(v2, viewProjectionMatrix);
-		v2 = Transform(ndcVertex, viewportMatrix);
+		Vector3 ndcVertex = CoordTransform(v1, viewProjectionMatrix);
+		v1 = CoordTransform(ndcVertex, viewportMatrix);
+		ndcVertex = CoordTransform(v2, viewProjectionMatrix);
+		v2 = CoordTransform(ndcVertex, viewportMatrix);
 
 		//変換後の座標を使って表示
 		Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0xAAAAAAFF);
@@ -79,10 +79,10 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 		Vector3 v2 = { -kGridHalfWidth,0.0f,kGridEvery * z - kGridHalfWidth };
 
 		//スクリーン座標に変換
-		Vector3 ndcVertex = Transform(v1, viewProjectionMatrix);
-		v1 = Transform(ndcVertex, viewportMatrix);
-		ndcVertex = Transform(v2, viewProjectionMatrix);
-		v2 = Transform(ndcVertex, viewportMatrix);
+		Vector3 ndcVertex = CoordTransform(v1, viewProjectionMatrix);
+		v1 = CoordTransform(ndcVertex, viewportMatrix);
+		ndcVertex = CoordTransform(v2, viewProjectionMatrix);
+		v2 = CoordTransform(ndcVertex, viewportMatrix);
 
 		//変換後の座標を使って表示
 		Novice::DrawLine(int(v1.x), int(v1.y), int(v2.x), int(v2.y), 0xAAAAAAFF);
@@ -109,7 +109,7 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 	for (int32_t index = 0; index < 4; ++index) {
 		Vector3 extend = Multiply(2.0f, perpendiculars[index]);
 		Vector3 point = Add(center, extend);
-		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
+		points[index] = CoordTransform(CoordTransform(point, viewProjectionMatrix), viewportMatrix);
 	}
 
 	//pointsを結んで描画
@@ -122,9 +122,9 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 
 void DrawTransformLine(const Vector3& p1, const Vector3& p2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 
-	Vector3 start = Transform(Transform(p1, viewProjectionMatrix), viewportMatrix);
+	Vector3 start = CoordTransform(CoordTransform(p1, viewProjectionMatrix), viewportMatrix);
 
-	Vector3 end = Transform(Transform(Add(p1, p2), viewProjectionMatrix), viewportMatrix);
+	Vector3 end = CoordTransform(CoordTransform(Add(p1, p2), viewProjectionMatrix), viewportMatrix);
 
 	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), color);
 
@@ -135,7 +135,7 @@ void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatri
 	Vector3 point[3]{};
 
 	for (int i = 0; i < 3; i++) {
-		point[i] = Transform(Transform(triangle.vertices[i], viewProjectionMatrix), viewportMatrix);
+		point[i] = CoordTransform(CoordTransform(triangle.vertices[i], viewProjectionMatrix), viewportMatrix);
 	}
 
 	Novice::DrawTriangle(int(point[0].x), int(point[0].y),
@@ -169,21 +169,21 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 	point[7] = { aabb.max.x,aabb.max.y, aabb.max.z };
 
 	//左下前
-	point[0] = Transform(Transform(point[0], viewProjectionMatrix), viewportMatrix);
+	point[0] = CoordTransform(CoordTransform(point[0], viewProjectionMatrix), viewportMatrix);
 	//右下前
-	point[1] = Transform(Transform(point[1], viewProjectionMatrix), viewportMatrix);
+	point[1] = CoordTransform(CoordTransform(point[1], viewProjectionMatrix), viewportMatrix);
 	//左上前
-	point[2] = Transform(Transform(point[2], viewProjectionMatrix), viewportMatrix);
+	point[2] = CoordTransform(CoordTransform(point[2], viewProjectionMatrix), viewportMatrix);
 	//右上前
-	point[3] = Transform(Transform(point[3], viewProjectionMatrix), viewportMatrix);
+	point[3] = CoordTransform(CoordTransform(point[3], viewProjectionMatrix), viewportMatrix);
 	//左下奥
-	point[4] = Transform(Transform(point[4], viewProjectionMatrix), viewportMatrix);
+	point[4] = CoordTransform(CoordTransform(point[4], viewProjectionMatrix), viewportMatrix);
 	//右下奥
-	point[5] = Transform(Transform(point[5], viewProjectionMatrix), viewportMatrix);
+	point[5] = CoordTransform(CoordTransform(point[5], viewProjectionMatrix), viewportMatrix);
 	//左上奥
-	point[6] = Transform(Transform(point[6], viewProjectionMatrix), viewportMatrix);
+	point[6] = CoordTransform(CoordTransform(point[6], viewProjectionMatrix), viewportMatrix);
 	//右上奥
-	point[7] = Transform(Transform(point[7], viewProjectionMatrix), viewportMatrix);
+	point[7] = CoordTransform(CoordTransform(point[7], viewProjectionMatrix), viewportMatrix);
 
 	//八頂点を使って描画
 	Novice::DrawLine(int(point[0].x), int(point[0].y), int(point[1].x), int(point[1].y), color);
@@ -220,21 +220,21 @@ void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix
 	//それぞれの位置を計算
 
 	//左下前
-	point[0] = Transform(Vector3{ - obb.size.x, - obb.size.y, - obb.size.z }, rotateMatrix);
+	point[0] = CoordTransform(Vector3{ - obb.size.x, - obb.size.y, - obb.size.z }, rotateMatrix);
 	//右下前
-	point[1] = Transform(Vector3{ + obb.size.x, - obb.size.y, - obb.size.z }, rotateMatrix);
+	point[1] = CoordTransform(Vector3{ + obb.size.x, - obb.size.y, - obb.size.z }, rotateMatrix);
 	//左上前
-	point[2] = Transform(Vector3{ - obb.size.x, + obb.size.y, - obb.size.z }, rotateMatrix);
+	point[2] = CoordTransform(Vector3{ - obb.size.x, + obb.size.y, - obb.size.z }, rotateMatrix);
 	//右上前
-	point[3] = Transform(Vector3{ + obb.size.x, + obb.size.y, - obb.size.z }, rotateMatrix);
+	point[3] = CoordTransform(Vector3{ + obb.size.x, + obb.size.y, - obb.size.z }, rotateMatrix);
 	//左下奥
-	point[4] = Transform(Vector3{ - obb.size.x, - obb.size.y, + obb.size.z }, rotateMatrix);
+	point[4] = CoordTransform(Vector3{ - obb.size.x, - obb.size.y, + obb.size.z }, rotateMatrix);
 	//右下奥
-	point[5] = Transform(Vector3{ + obb.size.x, - obb.size.y, + obb.size.z }, rotateMatrix);
+	point[5] = CoordTransform(Vector3{ + obb.size.x, - obb.size.y, + obb.size.z }, rotateMatrix);
 	//左上奥
-	point[6] = Transform(Vector3{ - obb.size.x, + obb.size.y, + obb.size.z }, rotateMatrix);
+	point[6] = CoordTransform(Vector3{ - obb.size.x, + obb.size.y, + obb.size.z }, rotateMatrix);
 	//右上奥
-	point[7] = Transform(Vector3{ + obb.size.x, + obb.size.y, + obb.size.z }, rotateMatrix);
+	point[7] = CoordTransform(Vector3{ + obb.size.x, + obb.size.y, + obb.size.z }, rotateMatrix);
 
 	//左下前
 	point[0] = Add(point[0], obb.center);
@@ -254,21 +254,21 @@ void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix
 	point[7] = Add(point[7], obb.center);
 
 	//左下前
-	point[0] = Transform(Transform(point[0], viewProjectionMatrix), viewportMatrix);
+	point[0] = CoordTransform(CoordTransform(point[0], viewProjectionMatrix), viewportMatrix);
 	//右下前
-	point[1] = Transform(Transform(point[1], viewProjectionMatrix), viewportMatrix);
+	point[1] = CoordTransform(CoordTransform(point[1], viewProjectionMatrix), viewportMatrix);
 	//左上前
-	point[2] = Transform(Transform(point[2], viewProjectionMatrix), viewportMatrix);
+	point[2] = CoordTransform(CoordTransform(point[2], viewProjectionMatrix), viewportMatrix);
 	//右上前
-	point[3] = Transform(Transform(point[3], viewProjectionMatrix), viewportMatrix);
+	point[3] = CoordTransform(CoordTransform(point[3], viewProjectionMatrix), viewportMatrix);
 	//左下奥
-	point[4] = Transform(Transform(point[4], viewProjectionMatrix), viewportMatrix);
+	point[4] = CoordTransform(CoordTransform(point[4], viewProjectionMatrix), viewportMatrix);
 	//右下奥
-	point[5] = Transform(Transform(point[5], viewProjectionMatrix), viewportMatrix);
+	point[5] = CoordTransform(CoordTransform(point[5], viewProjectionMatrix), viewportMatrix);
 	//左上奥
-	point[6] = Transform(Transform(point[6], viewProjectionMatrix), viewportMatrix);
+	point[6] = CoordTransform(CoordTransform(point[6], viewProjectionMatrix), viewportMatrix);
 	//右上奥
-	point[7] = Transform(Transform(point[7], viewProjectionMatrix), viewportMatrix);
+	point[7] = CoordTransform(CoordTransform(point[7], viewProjectionMatrix), viewportMatrix);
 
 	//八頂点を使って描画
 	Novice::DrawLine(int(point[0].x), int(point[0].y), int(point[1].x), int(point[1].y), color);

@@ -189,7 +189,7 @@ bool IsCollision(const OBB& obb, const Sphere& sphere) {
 
 	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
 
-	Vector3 centerInOBBLocalSpace = Transform(sphere.center, obbWorldMatrixInverse);
+	Vector3 centerInOBBLocalSpace = CoordTransform(sphere.center, obbWorldMatrixInverse);
 
 	AABB aabbOBBLocal{ Vector3(-obb.size.x, -obb.size.y, -obb.size.z), obb.size };
 	Sphere sphereOBBLocal{ centerInOBBLocalSpace, sphere.radius };
@@ -216,8 +216,8 @@ bool IsCollision(const OBB& obb, const Segment& segment) {
 
 	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
 
-	Vector3 localOrigin = Transform(segment.origin, obbWorldMatrixInverse);
-	Vector3 localEnd = Transform(Add(segment.origin, segment.diff), obbWorldMatrixInverse);
+	Vector3 localOrigin = CoordTransform(segment.origin, obbWorldMatrixInverse);
+	Vector3 localEnd = CoordTransform(Add(segment.origin, segment.diff), obbWorldMatrixInverse);
 
 	AABB localAABB{
 		{-obb.size.x, -obb.size.y, -obb.size.z},
@@ -229,5 +229,201 @@ bool IsCollision(const OBB& obb, const Segment& segment) {
 	localSegment.diff = Subtract(localEnd, localOrigin);
 
 	return IsCollision(localAABB, localSegment);
+
+}
+
+bool IsCollision(const OBB& obb1, const OBB& obb2) {
+
+	//面法線判定
+	for (uint32_t i = 0; i < 6; i++) {
+
+		Vector3 axis;
+
+		//軸を抽出
+		if (i < 3) {
+			axis = obb1.orientations[i];
+		}
+		else {
+			axis = obb2.orientations[i - 3];
+		}
+
+		Vector3 tmpSize1[3];
+		tmpSize1[0] = obb1.orientations[0] * obb1.size.x;
+		tmpSize1[1] = obb1.orientations[1] * obb1.size.y;
+		tmpSize1[2] = obb1.orientations[2] * obb1.size.z;
+
+		//分離軸に対して射影
+		float point1[8];
+		point1[0] = Dot(obb1.center + tmpSize1[0] + tmpSize1[1] + tmpSize1[2], axis);
+		point1[1] = Dot(obb1.center + tmpSize1[0] - tmpSize1[1] + tmpSize1[2], axis);
+		point1[2] = Dot(obb1.center + tmpSize1[0] + tmpSize1[1] - tmpSize1[2], axis);
+		point1[3] = Dot(obb1.center + tmpSize1[0] - tmpSize1[1] - tmpSize1[2], axis);
+		point1[4] = Dot(obb1.center - tmpSize1[0] + tmpSize1[1] + tmpSize1[2], axis);
+		point1[5] = Dot(obb1.center - tmpSize1[0] - tmpSize1[1] + tmpSize1[2], axis);
+		point1[6] = Dot(obb1.center - tmpSize1[0] + tmpSize1[1] - tmpSize1[2], axis);
+		point1[7] = Dot(obb1.center - tmpSize1[0] - tmpSize1[1] - tmpSize1[2], axis);
+
+		float min1 = point1[0];
+		float max1 = point1[0];
+
+		//最小値と最大値を求める
+		for (uint32_t k = 0; k < 8; k++) {
+
+			if (min1 > point1[k]) {
+				min1 = point1[k];
+			}
+
+			if (max1 < point1[k]) {
+				max1 = point1[k];
+			}
+
+		}
+
+		//差分を求める
+		float length1 = max1 - min1;
+
+		Vector3 tmpSize2[3];
+		tmpSize2[0] = obb2.orientations[0] * obb2.size.x;
+		tmpSize2[1] = obb2.orientations[1] * obb2.size.y;
+		tmpSize2[2] = obb2.orientations[2] * obb2.size.z;
+
+		//分離軸に対して射影
+		float point2[8];
+		point2[0] = Dot(obb2.center + tmpSize2[0] + tmpSize2[1] + tmpSize2[2], axis);
+		point2[1] = Dot(obb2.center + tmpSize2[0] - tmpSize2[1] + tmpSize2[2], axis);
+		point2[2] = Dot(obb2.center + tmpSize2[0] + tmpSize2[1] - tmpSize2[2], axis);
+		point2[3] = Dot(obb2.center + tmpSize2[0] - tmpSize2[1] - tmpSize2[2], axis);
+		point2[4] = Dot(obb2.center - tmpSize2[0] + tmpSize2[1] + tmpSize2[2], axis);
+		point2[5] = Dot(obb2.center - tmpSize2[0] - tmpSize2[1] + tmpSize2[2], axis);
+		point2[6] = Dot(obb2.center - tmpSize2[0] + tmpSize2[1] - tmpSize2[2], axis);
+		point2[7] = Dot(obb2.center - tmpSize2[0] - tmpSize2[1] - tmpSize2[2], axis);
+
+		float min2 = point2[0];
+		float max2 = point2[0];
+
+		//最小値と最大値を求める
+		for (uint32_t k = 0; k < 8; k++) {
+
+			if (min2 > point2[k]) {
+				min2 = point2[k];
+			}
+
+			if (max2 < point2[k]) {
+				max2 = point2[k];
+			}
+
+		}
+
+		//差分を求める
+		float length2 = max2 - min2;
+
+		//それぞれのobbの端から端までの長さを足す
+		float sumSpan = length1 + length2;
+		//二つのobbの位置の端から端までを計算
+		float longSpan = std::max(max1, max2) - std::min(min1, min2);
+
+		//sumSpanがlongSpanより短い場合、隙間があることになるので分離しているといえる
+		if (sumSpan < longSpan) {
+			return false;
+		}
+
+	}
+
+	Vector3 axises[9];
+	axises[0] = Cross(obb1.orientations[0], obb2.orientations[0]);
+	axises[1] = Cross(obb1.orientations[0], obb2.orientations[1]);
+	axises[2] = Cross(obb1.orientations[0], obb2.orientations[2]);
+	axises[3] = Cross(obb1.orientations[1], obb2.orientations[0]);
+	axises[4] = Cross(obb1.orientations[1], obb2.orientations[1]);
+	axises[5] = Cross(obb1.orientations[1], obb2.orientations[2]);
+	axises[6] = Cross(obb1.orientations[2], obb2.orientations[0]);
+	axises[7] = Cross(obb1.orientations[2], obb2.orientations[1]);
+	axises[8] = Cross(obb1.orientations[2], obb2.orientations[2]);
+
+	for (uint32_t i = 0; i < 9; i++) {
+
+		Vector3 tmpSize1[3];
+		tmpSize1[0] = obb1.orientations[0] * obb1.size.x;
+		tmpSize1[1] = obb1.orientations[1] * obb1.size.y;
+		tmpSize1[2] = obb1.orientations[2] * obb1.size.z;
+
+		//分離軸に対して射影
+		float point1[8];
+		point1[0] = Dot(obb1.center + tmpSize1[0] + tmpSize1[1] + tmpSize1[2], axises[i]);
+		point1[1] = Dot(obb1.center + tmpSize1[0] - tmpSize1[1] + tmpSize1[2], axises[i]);
+		point1[2] = Dot(obb1.center + tmpSize1[0] + tmpSize1[1] - tmpSize1[2], axises[i]);
+		point1[3] = Dot(obb1.center + tmpSize1[0] - tmpSize1[1] - tmpSize1[2], axises[i]);
+		point1[4] = Dot(obb1.center - tmpSize1[0] + tmpSize1[1] + tmpSize1[2], axises[i]);
+		point1[5] = Dot(obb1.center - tmpSize1[0] - tmpSize1[1] + tmpSize1[2], axises[i]);
+		point1[6] = Dot(obb1.center - tmpSize1[0] + tmpSize1[1] - tmpSize1[2], axises[i]);
+		point1[7] = Dot(obb1.center - tmpSize1[0] - tmpSize1[1] - tmpSize1[2], axises[i]);
+
+		float min1 = point1[0];
+		float max1 = point1[0];
+
+		//最小値と最大値を求める
+		for (uint32_t k = 0; k < 8; k++) {
+
+			if (min1 > point1[k]) {
+				min1 = point1[k];
+			}
+
+			if (max1 < point1[k]) {
+				max1 = point1[k];
+			}
+
+		}
+
+		//差分を求める
+		float length1 = max1 - min1;
+
+		Vector3 tmpSize2[3];
+		tmpSize2[0] = obb2.orientations[0] * obb2.size.x;
+		tmpSize2[1] = obb2.orientations[1] * obb2.size.y;
+		tmpSize2[2] = obb2.orientations[2] * obb2.size.z;
+
+		//分離軸に対して射影
+		float point2[8];
+		point2[0] = Dot(obb2.center + tmpSize2[0] + tmpSize2[1] + tmpSize2[2], axises[i]);
+		point2[1] = Dot(obb2.center + tmpSize2[0] - tmpSize2[1] + tmpSize2[2], axises[i]);
+		point2[2] = Dot(obb2.center + tmpSize2[0] + tmpSize2[1] - tmpSize2[2], axises[i]);
+		point2[3] = Dot(obb2.center + tmpSize2[0] - tmpSize2[1] - tmpSize2[2], axises[i]);
+		point2[4] = Dot(obb2.center - tmpSize2[0] + tmpSize2[1] + tmpSize2[2], axises[i]);
+		point2[5] = Dot(obb2.center - tmpSize2[0] - tmpSize2[1] + tmpSize2[2], axises[i]);
+		point2[6] = Dot(obb2.center - tmpSize2[0] + tmpSize2[1] - tmpSize2[2], axises[i]);
+		point2[7] = Dot(obb2.center - tmpSize2[0] - tmpSize2[1] - tmpSize2[2], axises[i]);
+
+		float min2 = point2[0];
+		float max2 = point2[0];
+
+		//最小値と最大値を求める
+		for (uint32_t k = 0; k < 8; k++) {
+
+			if (min2 > point2[k]) {
+				min2 = point2[k];
+			}
+
+			if (max2 < point2[k]) {
+				max2 = point2[k];
+			}
+
+		}
+
+		//差分を求める
+		float length2 = max2 - min2;
+
+		//それぞれのobbの端から端までの長さを足す
+		float sumSpan = length1 + length2;
+		//二つのobbの位置の端から端までを計算
+		float longSpan = std::max(max1, max2) - std::min(min1, min2);
+
+		//sumSpanがlongSpanより短い場合、隙間があることになるので分離しているといえる
+		if (sumSpan < longSpan) {
+			return false;
+		}
+
+	}
+
+	return true;
 
 }

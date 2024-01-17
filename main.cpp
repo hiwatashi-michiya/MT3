@@ -31,19 +31,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-	Vector3 rotateOBB{ 0.0f,0.0f,0.0f };
-	OBB obb{
-		.center{-1.0f,0.0f,0.0f},
+	Vector3 rotateOBB1{ 0.0f,0.0f,0.0f };
+	OBB obb1{
+		.center{0.0f,0.0f,0.0f},
 		.orientations =
 		{{1.0f,0.0f,0.0f},
 		{0.0f,1.0f,0.0f},
 		{0.0f,0.0f,1.0f}},
-		.size{0.5f,0.5f,0.5f}
+		.size{0.83f,0.26f,0.24f}
 	};
 
-	Segment segment{
-		.origin{-0.8f,-0.3f,0.0f},
-		.diff{0.5f,0.5f,0.5f}
+	Vector3 rotateOBB2{ -0.05f,-2.49f,0.15f };
+	OBB obb2{
+		.center{0.9f,0.66f,0.78f},
+		.orientations =
+		{{1.0f,0.0f,0.0f},
+		{0.0f,1.0f,0.0f},
+		{0.0f,0.0f,1.0f}},
+		.size{0.5f,0.37f,0.5f}
 	};
 
 	int color = WHITE;
@@ -72,18 +77,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 		
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("OBB rotate", &rotateOBB.x, 0.01f);
-		ImGui::DragFloat3("OBB center", &obb.center.x, 0.01f);
-		ImGui::DragFloat3("OBB orientation X", &obb.orientations[0].x, 0.01f);
-		ImGui::DragFloat3("OBB orientation Y", &obb.orientations[1].x, 0.01f);
-		ImGui::DragFloat3("OBB orientation Z", &obb.orientations[2].x, 0.01f);
-		ImGui::DragFloat3("OBB size", &obb.size.x, 0.01f, 0.1f, 100.0f);
-		ImGui::DragFloat3("Segment origin", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("Segment diff", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("OBB1 rotate", &rotateOBB1.x, 0.01f);
+		ImGui::DragFloat3("OBB1 center", &obb1.center.x, 0.01f);
+		ImGui::DragFloat3("OBB1 orientation X", &obb1.orientations[0].x, 0.01f);
+		ImGui::DragFloat3("OBB1 orientation Y", &obb1.orientations[1].x, 0.01f);
+		ImGui::DragFloat3("OBB1 orientation Z", &obb1.orientations[2].x, 0.01f);
+		ImGui::DragFloat3("OBB1 size", &obb1.size.x, 0.01f, 0.1f, 100.0f);
+		ImGui::DragFloat3("OBB2 rotate", &rotateOBB2.x, 0.01f);
+		ImGui::DragFloat3("OBB2 center", &obb2.center.x, 0.01f);
+		ImGui::DragFloat3("OBB2 orientation X", &obb2.orientations[0].x, 0.01f);
+		ImGui::DragFloat3("OBB2 orientation Y", &obb2.orientations[1].x, 0.01f);
+		ImGui::DragFloat3("OBB2 orientation Z", &obb2.orientations[2].x, 0.01f);
+		ImGui::DragFloat3("OBB2 size", &obb2.size.x, 0.01f, 0.1f, 100.0f);
 		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
 		ImGui::End();
 
-		if (IsCollision(obb, segment)) {
+		if (IsCollision(obb1, obb2)) {
 			color = 0xFF0000FF;
 		}
 		else {
@@ -91,25 +100,45 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//回転行列を生成
-		Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(rotateOBB.x),
-			Multiply(MakeRotateYMatrix(rotateOBB.y), MakeRotateZMatrix(rotateOBB.z)));
+		Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(rotateOBB1.x),
+			Multiply(MakeRotateYMatrix(rotateOBB1.y), MakeRotateZMatrix(rotateOBB1.z)));
 
 		//回転行列から軸を抽出
-		obb.orientations[0].x = rotateMatrix.m[0][0];
-		obb.orientations[0].y = rotateMatrix.m[0][1];
-		obb.orientations[0].z = rotateMatrix.m[0][2];
+		obb1.orientations[0].x = rotateMatrix.m[0][0];
+		obb1.orientations[0].y = rotateMatrix.m[0][1];
+		obb1.orientations[0].z = rotateMatrix.m[0][2];
 
-		obb.orientations[1].x = rotateMatrix.m[1][0];
-		obb.orientations[1].y = rotateMatrix.m[1][1];
-		obb.orientations[1].z = rotateMatrix.m[1][2];
+		obb1.orientations[1].x = rotateMatrix.m[1][0];
+		obb1.orientations[1].y = rotateMatrix.m[1][1];
+		obb1.orientations[1].z = rotateMatrix.m[1][2];
 
-		obb.orientations[2].x = rotateMatrix.m[2][0];
-		obb.orientations[2].y = rotateMatrix.m[2][1];
-		obb.orientations[2].z = rotateMatrix.m[2][2];
+		obb1.orientations[2].x = rotateMatrix.m[2][0];
+		obb1.orientations[2].y = rotateMatrix.m[2][1];
+		obb1.orientations[2].z = rotateMatrix.m[2][2];
 
-		obb.orientations[0] = Normalize(obb.orientations[0]);
-		obb.orientations[1] = Normalize(obb.orientations[1]);
-		obb.orientations[2] = Normalize(obb.orientations[2]);
+		obb1.orientations[0] = Normalize(obb1.orientations[0]);
+		obb1.orientations[1] = Normalize(obb1.orientations[1]);
+		obb1.orientations[2] = Normalize(obb1.orientations[2]);
+
+		rotateMatrix = Multiply(MakeRotateXMatrix(rotateOBB2.x),
+			Multiply(MakeRotateYMatrix(rotateOBB2.y), MakeRotateZMatrix(rotateOBB2.z)));
+
+		//回転行列から軸を抽出
+		obb2.orientations[0].x = rotateMatrix.m[0][0];
+		obb2.orientations[0].y = rotateMatrix.m[0][1];
+		obb2.orientations[0].z = rotateMatrix.m[0][2];
+
+		obb2.orientations[1].x = rotateMatrix.m[1][0];
+		obb2.orientations[1].y = rotateMatrix.m[1][1];
+		obb2.orientations[1].z = rotateMatrix.m[1][2];
+
+		obb2.orientations[2].x = rotateMatrix.m[2][0];
+		obb2.orientations[2].y = rotateMatrix.m[2][1];
+		obb2.orientations[2].z = rotateMatrix.m[2][2];
+
+		obb2.orientations[0] = Normalize(obb2.orientations[0]);
+		obb2.orientations[1] = Normalize(obb2.orientations[1]);
+		obb2.orientations[2] = Normalize(obb2.orientations[2]);
 
 		///
 		/// ↑更新処理ここまで
@@ -120,8 +149,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawOBB(obb, viewProjectionMatrix, viewportMatrix, color);
-		DrawTransformLine(segment.origin, segment.diff, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawOBB(obb1, viewProjectionMatrix, viewportMatrix, color);
+		DrawOBB(obb2, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
